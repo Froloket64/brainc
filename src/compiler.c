@@ -141,8 +141,6 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
                 break;
             case '[':
                 INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-                // TODO? OPTIM: Remove `CMP`
-                INSTR_1(opcode, pc, CMP, 0);
                 INSTR_0(opcode, pc, BEQ);
 
                 // Replaced later by `]`
@@ -152,7 +150,6 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
                 break;
             case ']':
                 INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-                INSTR_1(opcode, pc, CMP, 0);
                 INSTR_0(opcode, pc, BNE);
 
                 if (labels.len == 0)
