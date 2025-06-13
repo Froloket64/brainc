@@ -1,12 +1,17 @@
 Read key and print it multiplied by 2
 
-, Input (x)
------------------------------------------------- Normalize to number
+(x) 0
+(y) 1
 
-> ++ Set (y) to 2
+, input to (x)
+to_number (x)
+------------------------------------------------
+
+add2(y)
+> ++
 <
 
-Multiply (x) by (y) into (x)
+multiply(x y) to (x)
     [>>>+<<<-]
     >>>
     [
@@ -14,5 +19,6 @@ Multiply (x) by (y) into (x)
     >-]
     <<<
 
-++++++++++++++++++++++++++++++++++++++++++++++++ Normalize back to ASCII
-. Print (x)
+to_ascii (x)
+++++++++++++++++++++++++++++++++++++++++++++++++
+. print(x)
