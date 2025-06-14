@@ -8,7 +8,7 @@ Features:
  - Fast (**TODO** bench :))
  - Supports all Brainfuck operations (including loops)
  - Supports keyboard I/O _that was hard_
- - Not recongnized symbols are comments
+ - Not recognized symbols are comments
  - Allows assembly preview of emitted code using the `-v` flag
  
 Future plans:
