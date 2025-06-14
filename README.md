@@ -39,3 +39,6 @@ By default, the compiler is checked to work with the Symon emulator.
 However, other emulators should work just as well, as long as the memory map is set up correctly in the compiler source code (configuration options will be available in the future).
 
 To verify / change the mapping, see `src/memory_map.h`, which should have all necessary memory mappings.
+
+## Contributing
+See [`CONTRIBUTING.md`](/CONTRIBUTING.md).

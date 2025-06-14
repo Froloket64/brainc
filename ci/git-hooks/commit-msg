@@ -1,0 +1,8 @@
+#!/bin/bash
+
+msg=$(head -n 1 "$1")
+
+# Check if message is written using Conventional Commits
+if ! echo "$msg" | grep -Eq '^\w+(\(\w+\))?!?: .+'; then
+    exit 1
+fi

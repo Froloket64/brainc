@@ -1,6 +1,7 @@
 #!/bin/bash
 
 mkdir -p build/tests/
+rm -rf build/main.o
 
 find src/ -name "*.c" -not -name "main.c" -exec basename '{}' \; |
     while read -r file; do
