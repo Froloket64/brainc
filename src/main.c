@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     // TODO? OPTIM: Cut down on the memory, boy
     opcodes = malloc(sizeof(opcode_t) * 8 * input_len + 20);
 
-    enum CompResult result = compile(input, opcodes, &opcodes_n, MAX_OPCODE_LEN);
+    enum CompResult result = compile(input, opcodes, &opcodes_n, MAX_OPCODE_LEN, Normal);
 
     if (result != Ok)
     {
