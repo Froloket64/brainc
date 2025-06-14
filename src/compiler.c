@@ -7,30 +7,6 @@
 #include <stdio.h>
 #endif
 
-/** @brief Takes the low byte of the (uint16_t) address. */
-#define LO(ADDR) (opcode_t) ADDR
-/** @brief Takes the high byte of the (uint16_t) address. */
-#define HI(ADDR) (opcode_t) (ADDR >> 8)
-
-// TODO?
-/* #define MEM_START_HI 0x00 */
-#define MEM_START_LO 0x00
-
-#define INSTR_0(OPCODE, PC, MNEMONIC) { \
-    OPCODE[PC++] = MNEMONIC;            \
-}
-
-#define INSTR_1(OPCODE, PC, MNEMONIC, ARG1) { \
-    OPCODE[PC++] = MNEMONIC;                  \
-    OPCODE[PC++] = ARG1;                      \
-}
-
-#define INSTR_2(OPCODE, PC, MNEMONIC, ARG1, ARG2) { \
-    OPCODE[PC++] = MNEMONIC;                        \
-    OPCODE[PC++] = ARG1;                            \
-    OPCODE[PC++] = ARG2;                            \
-}
-
 // TODO? Switch over to a vector, or other means of extensible `opcode` storage.
 enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t opcode_max_n)
 {

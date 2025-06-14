@@ -43,4 +43,24 @@ typedef unsigned char opcode_t;
 /** @brief Used for debug. */
 #define NOP 0xEA
 
+#define INSTR_0(OPCODE, PC, MNEMONIC) { \
+    OPCODE[PC++] = MNEMONIC;            \
+}
+
+#define INSTR_1(OPCODE, PC, MNEMONIC, ARG1) { \
+    OPCODE[PC++] = MNEMONIC;                  \
+    OPCODE[PC++] = ARG1;                      \
+}
+
+#define INSTR_2(OPCODE, PC, MNEMONIC, ARG1, ARG2) { \
+    OPCODE[PC++] = MNEMONIC;                        \
+    OPCODE[PC++] = ARG1;                            \
+    OPCODE[PC++] = ARG2;                            \
+}
+
+/** @brief Takes the low byte of the (uint16_t) address. */
+#define LO(ADDR) (opcode_t) ADDR
+/** @brief Takes the high byte of the (uint16_t) address. */
+#define HI(ADDR) (opcode_t) (ADDR >> 8)
+
 #endif // INSTR_H_

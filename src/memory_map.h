@@ -43,13 +43,15 @@
  * Indicated where the program will be stored in memory.
  * Must be set to a correct value, otherwise the emitted code will not work as expected. */
 #define PROGRAM_START_HI 0x03
+// TODO
+/* #define MEM_START_HI 0x00 */
+/** @brief Usable memory starting address. */
+#define MEM_START_LO 0x00
 /** @brief Always null address.
  *
  * Might be used internally later (for example, for tape out of bounds detection). */
 #define NULL_ADDR 0x00
 /** @brief Address to store the key received after input. */
 #define KEY_ADDR 0xff
-
-
 
 #endif // MEMORY_MAP_H_
