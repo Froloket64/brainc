@@ -1,10 +1,10 @@
 #include "compiler.h"
 #include "display.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <string.h>
 
 // HACK
 #define MAX_OPCODE_LEN 512

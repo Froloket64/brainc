@@ -1,7 +1,7 @@
 #include "compiler.h"
+#include "memory_map.h"
 #include "vector.h"
 #include <stdint.h>
-#include "memory_map.h"
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -12,18 +12,18 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
 {
     vec_t labels = vec_new();
     uint16_t pc = 0;
-    #ifdef DEBUG
+#ifdef DEBUG
     uint16_t init, irq_handler, irq_exit, wait_for_input, main;
-    #endif
+#endif
     uint16_t loop_start;
     enum CompResult rc = Ok;
 
     if (mode != NoHeader)
     {
-        // init:
-        #ifdef DEBUG
+// init:
+#ifdef DEBUG
         init = pc;
-        #endif
+#endif
         INSTR_0(opcode, pc, SEI);
 
         // ACIA Setup
@@ -45,10 +45,10 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
         // jmp main
         INSTR_2(opcode, pc, JMP_ABS, 0x37, PROGRAM_START_HI);
 
-        // irq_handler:
-        #ifdef DEBUG
+// irq_handler:
+#ifdef DEBUG
         irq_handler = pc;
-        #endif
+#endif
         INSTR_0(opcode, pc, PHA);
         INSTR_2(opcode, pc, LDA_ABS, LO(ACIA_STATUS), HI(ACIA_STATUS));
         INSTR_1(opcode, pc, AND_IMM, ACIA_RX_FULL_MASK);
@@ -56,17 +56,17 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
         INSTR_2(opcode, pc, LDA_ABS, LO(ACIA_KEY), HI(ACIA_KEY));
         INSTR_1(opcode, pc, STA_ZERO, KEY_ADDR);
 
-        // irq_exit:
-        #ifdef DEBUG
+// irq_exit:
+#ifdef DEBUG
         irq_exit = pc;
-        #endif
+#endif
         INSTR_0(opcode, pc, PLA);
         INSTR_0(opcode, pc, RTI);
 
-        // wait_for_input:
-        #ifdef DEBUG
+// wait_for_input:
+#ifdef DEBUG
         wait_for_input = pc;
-        #endif
+#endif
         INSTR_1(opcode, pc, LDA_ZERO, KEY_ADDR);
         INSTR_1(opcode, pc, BEQ, -0x04);
 
@@ -76,84 +76,84 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
         INSTR_1(opcode, pc, STA_ZERO, KEY_ADDR);
         INSTR_0(opcode, pc, RTS);
 
-        #ifdef DEBUG
+#ifdef DEBUG
         printf("%02X, %02X, %02X, %02X, ", init, irq_handler, irq_exit, wait_for_input);
-        #endif
+#endif
     }
 
-    // main:
-    #ifdef DEBUG
+// main:
+#ifdef DEBUG
     main = pc;
 
     printf("%02X\n", main);
-    #endif
+#endif
 
     while (*input)
     {
         switch (*input++)
         {
-            case '+':
-                INSTR_1(opcode, pc, INC_REL_X, MEM_START_LO);
+        case '+':
+            INSTR_1(opcode, pc, INC_REL_X, MEM_START_LO);
 
-                break;
-            case '-':
-                INSTR_1(opcode, pc, DEC_REL_X, MEM_START_LO);
+            break;
+        case '-':
+            INSTR_1(opcode, pc, DEC_REL_X, MEM_START_LO);
 
-                break;
-            case '>':
-                INSTR_0(opcode, pc, INX);
+            break;
+        case '>':
+            INSTR_0(opcode, pc, INX);
 
-                break;
-            case '<':
-                INSTR_0(opcode, pc, DEX);
+            break;
+        case '<':
+            INSTR_0(opcode, pc, DEX);
 
-                break;
-            case '.':
-                INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-                // HACK?
-                INSTR_2(opcode, pc, STA_ABS_REL_Y, LO(DISPLAY_START), HI(DISPLAY_START));
-                INSTR_0(opcode, pc, INY);
+            break;
+        case '.':
+            INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
+            // HACK?
+            INSTR_2(opcode, pc, STA_ABS_REL_Y, LO(DISPLAY_START), HI(DISPLAY_START));
+            INSTR_0(opcode, pc, INY);
 
-                break;
-            case ',':
-                // jsr wait_for_input
-                INSTR_2(opcode, pc, JSR, 0x2C, PROGRAM_START_HI);
+            break;
+        case ',':
+            // jsr wait_for_input
+            INSTR_2(opcode, pc, JSR, 0x2C, PROGRAM_START_HI);
 
-                break;
-            case '[':
-                INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-                INSTR_0(opcode, pc, BEQ);
+            break;
+        case '[':
+            INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
+            INSTR_0(opcode, pc, BEQ);
 
-                // Replaced later by `]`
-                vec_push(&labels, pc);
-                pc++;
+            // Replaced later by `]`
+            vec_push(&labels, pc);
+            pc++;
 
-                break;
-            case ']':
-                INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-                INSTR_0(opcode, pc, BNE);
+            break;
+        case ']':
+            INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
+            INSTR_0(opcode, pc, BNE);
 
-                if (labels.len == 0)
-                {
-                    rc = LoopNotStarted;
-                    goto exit;
-                }
+            if (labels.len == 0)
+            {
+                rc = LoopNotStarted;
+                goto exit;
+            }
 
-                vec_pop(&labels, (opcode_t *) &loop_start);
+            vec_pop(&labels, (opcode_t *)&loop_start);
 
-                opcode[pc] = (opcode_t) (loop_start - pc);
-                pc++;
-                opcode[loop_start] = (opcode_t) (pc - loop_start - 1);
+            opcode[pc] = (opcode_t)(loop_start - pc);
+            pc++;
+            opcode[loop_start] = (opcode_t)(pc - loop_start - 1);
 
-                break;
-            // DEBUG
-            case '?':
-                opcode[pc++] = NOP;
+            break;
+        // DEBUG
+        case '?':
+            opcode[pc++] = NOP;
 
-                break;
-            default:
-                // Skip
-                break;
+            break;
+        default:
+            // Skip
+            break;
         }
     }
 

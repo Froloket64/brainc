@@ -1,8 +1,8 @@
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
 
-#include "instr.h"
 #include "compiler.h"
+#include "instr.h"
 
 #define ERR_UNKNOWN_MNEMONIC 1
 

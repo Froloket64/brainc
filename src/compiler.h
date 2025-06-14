@@ -1,16 +1,18 @@
 #ifndef COMPILER_H_
 #define COMPILER_H_
 
-#include <stddef.h>
 #include "instr.h"
+#include <stddef.h>
 
-enum CompResult {
+enum CompResult
+{
     Ok,
     LoopNotStarted,
     LoopNotFinished,
 };
 
-enum CompMode {
+enum CompMode
+{
     Normal,
     /** @brief Produces a raw result without any subroutine setup (only `main`).
      *

@@ -2,13 +2,14 @@
 #define VECTOR_H_
 
 #include "instr.h"
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stddef.h>
 
 #define INIT_CAPACITY 16
 
-struct Vec {
+struct Vec
+{
     opcode_t *buf;
     size_t len;
     size_t capacity;

@@ -14,9 +14,9 @@
 #define DISPLAY_START 0x7000
 
 /** @brief MOS 6551 ACIA Key Register. */
-#define ACIA_KEY     0x8800
+#define ACIA_KEY 0x8800
 /** @brief MOS 6551 ACIA Status Register. */
-#define ACIA_STATUS  0x8801
+#define ACIA_STATUS 0x8801
 /** @brief MOS 6551 ACIA Control Register. */
 #define ACIA_CONTROL 0x8803
 /** @brief MOS 6551 ACIA Command Register. */

@@ -4,7 +4,7 @@
 vec_t vec_new(void)
 {
     vec_t vec;
-    opcode_t *buf = (opcode_t *) malloc(sizeof(opcode_t) * INIT_CAPACITY);
+    opcode_t *buf = (opcode_t *)malloc(sizeof(opcode_t) * INIT_CAPACITY);
 
     vec.buf = buf;
     vec.len = 0;
@@ -16,7 +16,7 @@ vec_t vec_new(void)
 vec_t vec_with_capacity(size_t capacity)
 {
     vec_t vec;
-    opcode_t *buf = (opcode_t *) malloc(sizeof(opcode_t) * capacity);
+    opcode_t *buf = (opcode_t *)malloc(sizeof(opcode_t) * capacity);
 
     vec.buf = buf;
     vec.len = 0;
