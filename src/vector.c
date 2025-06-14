@@ -68,3 +68,13 @@ opcode_t vec_first(vec_t *vec)
 
     return vec->buf[0];
 }
+
+void vec_clear(vec_t *vec)
+{
+    vec->len = 0;
+}
+
+void free_vec(vec_t *vec)
+{
+    free(vec->buf);
+}

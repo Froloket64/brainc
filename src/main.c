@@ -15,9 +15,7 @@ int main(int argc, char **argv)
 {
     char *input;
     size_t input_len;
-    size_t opcodes_n = 0;
-    // HACK
-    opcode_t *opcodes;
+    vec_t opcodes = vec_with_capacity(1024);
     char *out;
     size_t i = 0;
     bool verbose = false;
@@ -39,10 +37,7 @@ int main(int argc, char **argv)
 
     input_len = strlen(input);
 
-    // TODO? OPTIM: Cut down on the memory, boy
-    opcodes = malloc(sizeof(opcode_t) * 8 * input_len + 20);
-
-    enum CompResult result = compile(input, opcodes, &opcodes_n, MAX_OPCODE_LEN, Normal);
+    enum CompResult result = compile(input, &opcodes, Normal);
 
     if (result != Ok)
     {
@@ -51,13 +46,13 @@ int main(int argc, char **argv)
     }
 
     dest = fopen(argv[2], "wb");
-    fwrite(opcodes, sizeof(opcode_t), opcodes_n, dest);
+    fwrite(opcodes.buf, sizeof(opcode_t), opcodes.len, dest);
     fclose(dest);
 
     if (verbose)
     {
         out = malloc(1000 * 1000 * 4);
-        fmt_code(opcodes, opcodes_n, out);
+        fmt_code(opcodes.buf, opcodes.len, out);
 
         printf("asm:\n%s\n", out);
 
@@ -65,7 +60,7 @@ int main(int argc, char **argv)
     }
 
     free(input);
-    free(opcodes);
+    free_vec(&opcodes);
 
     return 0;
 }

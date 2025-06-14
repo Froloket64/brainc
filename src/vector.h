@@ -43,4 +43,13 @@ opcode_t vec_last(vec_t *vec);
  */
 opcode_t vec_first(vec_t *vec);
 
+/** @brief Clears the vector's buffer.
+ *
+ * NOTE: In reality, sets `vec.len` to `0`, allowing the buffer to be
+ * overwritten
+ */
+void vec_clear(vec_t *vec);
+/** @brief Frees the vector. */
+void free_vec(vec_t *vec);
+
 #endif // VECTOR_H_

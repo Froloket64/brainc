@@ -2,6 +2,7 @@
 #define COMPILER_H_
 
 #include "instr.h"
+#include "vector.h"
 #include <stddef.h>
 
 enum CompResult
@@ -21,6 +22,6 @@ enum CompMode
     NoHeader,
 };
 
-enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t opcode_max_n, enum CompMode mode);
+enum CompResult compile(char *input, vec_t *opcode, enum CompMode mode);
 
 #endif // COMPILER_H_

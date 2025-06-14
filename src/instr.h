@@ -61,6 +61,25 @@ typedef unsigned char opcode_t;
         OPCODE[PC++] = ARG2;                                                                                           \
     }
 
+// Vector versions
+#define VINSTR_0(OPCODE, MNEMONIC)                                                                                     \
+    {                                                                                                                  \
+        vec_push(OPCODE, MNEMONIC);                                                                                    \
+    }
+
+#define VINSTR_1(OPCODE, MNEMONIC, ARG1)                                                                               \
+    {                                                                                                                  \
+        vec_push(OPCODE, MNEMONIC);                                                                                    \
+        vec_push(OPCODE, ARG1);                                                                                        \
+    }
+
+#define VINSTR_2(OPCODE, MNEMONIC, ARG1, ARG2)                                                                         \
+    {                                                                                                                  \
+        vec_push(OPCODE, MNEMONIC);                                                                                    \
+        vec_push(OPCODE, ARG1);                                                                                        \
+        vec_push(OPCODE, ARG2);                                                                                        \
+    }
+
 /** @brief Takes the low byte of the (uint16_t) address. */
 #define LO(ADDR) (opcode_t) ADDR
 /** @brief Takes the high byte of the (uint16_t) address. */

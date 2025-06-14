@@ -7,74 +7,72 @@
 #include <stdio.h>
 #endif
 
-// TODO? Switch over to a vector, or other means of extensible `opcode` storage.
-enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t opcode_max_n, enum CompMode mode)
+enum CompResult compile(char *input, vec_t *opcode, enum CompMode mode)
 {
     vec_t labels = vec_new();
-    uint16_t pc = 0;
 #ifdef DEBUG
     uint16_t init, irq_handler, irq_exit, wait_for_input, main;
 #endif
-    uint16_t loop_start;
+    uint16_t loop_start = 0;
     enum CompResult rc = Ok;
 
     if (mode != NoHeader)
     {
 // init:
 #ifdef DEBUG
-        init = pc;
+        init = opcode->len;
 #endif
-        INSTR_0(opcode, pc, SEI);
+        VINSTR_0(opcode, SEI);
 
         // ACIA Setup
-        INSTR_1(opcode, pc, LDA_IMM, ACIA_CONTROL_MODE);
-        INSTR_2(opcode, pc, STA_ABS, LO(ACIA_CONTROL), HI(ACIA_CONTROL));
-        INSTR_1(opcode, pc, LDA_IMM, ACIA_COMMAND_MODE);
-        INSTR_2(opcode, pc, STA_ABS, LO(ACIA_COMMAND), HI(ACIA_COMMAND));
+        VINSTR_1(opcode, LDA_IMM, ACIA_CONTROL_MODE);
+        VINSTR_2(opcode, STA_ABS, LO(ACIA_CONTROL), HI(ACIA_CONTROL));
+        VINSTR_1(opcode, LDA_IMM, ACIA_COMMAND_MODE);
+        VINSTR_2(opcode, STA_ABS, LO(ACIA_COMMAND), HI(ACIA_COMMAND));
 
         // IRQ Setup
-        INSTR_1(opcode, pc, LDA_IMM, 0x1D);
-        INSTR_2(opcode, pc, STA_ABS, LO(IRQ_VECTOR), HI(IRQ_VECTOR));
-        INSTR_1(opcode, pc, LDA_IMM, PROGRAM_START_HI);
-        INSTR_2(opcode, pc, STA_ABS, LO(IRQ_VECTOR) + 1, HI(IRQ_VECTOR));
+        VINSTR_1(opcode, LDA_IMM, 0x1D);
+        VINSTR_2(opcode, STA_ABS, LO(IRQ_VECTOR), HI(IRQ_VECTOR));
+        VINSTR_1(opcode, LDA_IMM, PROGRAM_START_HI);
+        VINSTR_2(opcode, STA_ABS, LO(IRQ_VECTOR) + 1, HI(IRQ_VECTOR));
 
-        INSTR_1(opcode, pc, LDX_IMM, 0);
-        INSTR_1(opcode, pc, LDY_IMM, 0);
+        VINSTR_1(opcode, LDX_IMM, 0);
+        VINSTR_1(opcode, LDY_IMM, 0);
 
-        INSTR_0(opcode, pc, CLI);
+        VINSTR_0(opcode, CLI);
         // jmp main
-        INSTR_2(opcode, pc, JMP_ABS, 0x37, PROGRAM_START_HI);
+        VINSTR_2(opcode, JMP_ABS, 0x37, PROGRAM_START_HI);
 
 // irq_handler:
 #ifdef DEBUG
-        irq_handler = pc;
+        irq_handler = opcode->len;
 #endif
-        INSTR_0(opcode, pc, PHA);
-        INSTR_2(opcode, pc, LDA_ABS, LO(ACIA_STATUS), HI(ACIA_STATUS));
-        INSTR_1(opcode, pc, AND_IMM, ACIA_RX_FULL_MASK);
-        INSTR_1(opcode, pc, BEQ, 0x05);
-        INSTR_2(opcode, pc, LDA_ABS, LO(ACIA_KEY), HI(ACIA_KEY));
-        INSTR_1(opcode, pc, STA_ZERO, KEY_ADDR);
+        VINSTR_0(opcode, PHA);
+        VINSTR_2(opcode, LDA_ABS, LO(ACIA_STATUS), HI(ACIA_STATUS));
+        VINSTR_1(opcode, AND_IMM, ACIA_RX_FULL_MASK);
+        VINSTR_1(opcode, BEQ, 0x05);
+        VINSTR_2(opcode, LDA_ABS, LO(ACIA_KEY), HI(ACIA_KEY));
+        VINSTR_1(opcode, STA_ZERO, KEY_ADDR);
 
 // irq_exit:
 #ifdef DEBUG
-        irq_exit = pc;
+        irq_exit = opcode->len;
 #endif
-        INSTR_0(opcode, pc, PLA);
-        INSTR_0(opcode, pc, RTI);
+        VINSTR_0(opcode, PLA);
+        VINSTR_0(opcode, RTI);
 
 // wait_for_input:
 #ifdef DEBUG
-        wait_for_input = pc;
+        wait_for_input = opcode->len;
 #endif
-        INSTR_1(opcode, pc, LDA_ZERO, KEY_ADDR);
-        INSTR_1(opcode, pc, BEQ, -0x04);
+        VINSTR_1(opcode, LDA_ZERO, KEY_ADDR);
+        VINSTR_1(opcode, BEQ, -0x04);
 
-        INSTR_1(opcode, pc, STA_REL_X, 0);
+        VINSTR_1(opcode, STA_REL_X, 0);
 
-        INSTR_1(opcode, pc, LDA_IMM, 0);
-        INSTR_1(opcode, pc, STA_ZERO, KEY_ADDR);
-        INSTR_0(opcode, pc, RTS);
+        VINSTR_1(opcode, LDA_IMM, 0);
+        VINSTR_1(opcode, STA_ZERO, KEY_ADDR);
+        VINSTR_0(opcode, RTS);
 
 #ifdef DEBUG
         printf("%02X, %02X, %02X, %02X, ", init, irq_handler, irq_exit, wait_for_input);
@@ -83,7 +81,7 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
 
 // main:
 #ifdef DEBUG
-    main = pc;
+    main = opcode->len;
 
     printf("%02X\n", main);
 #endif
@@ -93,45 +91,45 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
         switch (*input++)
         {
         case '+':
-            INSTR_1(opcode, pc, INC_REL_X, MEM_START_LO);
+            VINSTR_1(opcode, INC_REL_X, MEM_START_LO);
 
             break;
         case '-':
-            INSTR_1(opcode, pc, DEC_REL_X, MEM_START_LO);
+            VINSTR_1(opcode, DEC_REL_X, MEM_START_LO);
 
             break;
         case '>':
-            INSTR_0(opcode, pc, INX);
+            VINSTR_0(opcode, INX);
 
             break;
         case '<':
-            INSTR_0(opcode, pc, DEX);
+            VINSTR_0(opcode, DEX);
 
             break;
         case '.':
-            INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
+            VINSTR_1(opcode, LDA_REL_X, MEM_START_LO);
             // HACK?
-            INSTR_2(opcode, pc, STA_ABS_REL_Y, LO(DISPLAY_START), HI(DISPLAY_START));
-            INSTR_0(opcode, pc, INY);
+            VINSTR_2(opcode, STA_ABS_REL_Y, LO(DISPLAY_START), HI(DISPLAY_START));
+            VINSTR_0(opcode, INY);
 
             break;
         case ',':
             // jsr wait_for_input
-            INSTR_2(opcode, pc, JSR, 0x2C, PROGRAM_START_HI);
+            VINSTR_2(opcode, JSR, 0x2C, PROGRAM_START_HI);
 
             break;
         case '[':
-            INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-            INSTR_0(opcode, pc, BEQ);
+            VINSTR_1(opcode, LDA_REL_X, MEM_START_LO);
+            VINSTR_0(opcode, BEQ);
 
             // Replaced later by `]`
-            vec_push(&labels, pc);
-            pc++;
+            vec_push(&labels, opcode->len);
+            VINSTR_0(opcode, 0);
 
             break;
         case ']':
-            INSTR_1(opcode, pc, LDA_REL_X, MEM_START_LO);
-            INSTR_0(opcode, pc, BNE);
+            VINSTR_1(opcode, LDA_REL_X, MEM_START_LO);
+            VINSTR_0(opcode, BNE);
 
             if (labels.len == 0)
             {
@@ -141,14 +139,13 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
 
             vec_pop(&labels, (opcode_t *)&loop_start);
 
-            opcode[pc] = (opcode_t)(loop_start - pc);
-            pc++;
-            opcode[loop_start] = (opcode_t)(pc - loop_start - 1);
+            VINSTR_0(opcode, (opcode_t)(loop_start - opcode->len));
+            opcode->buf[loop_start] = (opcode_t)(opcode->len - loop_start - 1);
 
             break;
         // DEBUG
         case '?':
-            opcode[pc++] = NOP;
+            VINSTR_0(opcode, NOP);
 
             break;
         default:
@@ -167,8 +164,6 @@ enum CompResult compile(char *input, opcode_t *opcode, size_t *opcode_n, size_t 
         rc = LoopNotFinished;
 
 exit:
-    *opcode_n = pc;
-
     free(labels.buf);
 
     return rc;
